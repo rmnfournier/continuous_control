@@ -1,8 +1,8 @@
 # Continuous Control
 The 2nd project of Udacity's Deep Learning Nanodegree program
 
-## Installation 
-You can follow the steps provided in the notebook to download the environment and train or watch an agent.
+## Instructions
+project.ipynb file provides a clear way for downloading the environment and train/watch the agent. Tuning the agent can easily be done my chaning the parameters at the top of ddpg_agent.py. Changing the neural network structure is achieved by modifying model.py. 
 
 ## Environment 
 
