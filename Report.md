@@ -35,8 +35,7 @@ Date: 27.11.2018
 ## Results
 The agent managed to solve the task, i.e., reaching an average score of 30 over the last 100 episodes, in 108 episodes. 
 
-![Training]
-(https://github.com/rmnfournier/continuous_control/blob/master/training.png)
+![Training](https://github.com/rmnfournier/continuous_control/blob/master/training.png)
 
 A movie of the trained agent is available in the repository.
 
