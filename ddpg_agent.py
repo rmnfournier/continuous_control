@@ -13,11 +13,11 @@ BUFFER_SIZE = int(1e5)  # replay buffer size
 BATCH_SIZE = 256       # minibatch size
 GAMMA = 0.95            # discount factor
 TAU = 1e-3              # for soft update of target parameters
-LR_ACTOR = 1*1e-4         # learning rate of the actor
-LR_CRITIC = 1*1e-4       # learning rate of the critic
+LR_ACTOR = 1*1e-3        # learning rate of the actor
+LR_CRITIC = 1*1e-3       # learning rate of the critic
 WEIGHT_DECAY = 0        # L2 weight decay
 EPSILON_DECAY=0.9999
-NB_UPDATES=10
+NB_UPDATES=1
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Agent():
@@ -51,7 +51,7 @@ class Agent():
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
 
         # Noise process
-        self.noise = OUNoise(action_size, random_seed)
+        self.noise = OUNoise((20,action_size), random_seed)
         self.epsilon = 1.5
         self.decay = EPSILON_DECAY
         # Replay memory
@@ -77,7 +77,9 @@ class Agent():
             action = self.actor_local(state).cpu().data.numpy()
         self.actor_local.train()
         if add_noise:
-            action += self.noise.sample()*self.epsilon
+            perturbation =self.noise.sample()*self.epsilon
+            #print ("mean "+str(perturbation.mean())+" and var "+str(np.var(perturbation)))
+            action += perturbation
         return np.clip(action, -1, 1)
 
     def reset(self):
@@ -98,6 +100,7 @@ class Agent():
         states, actions, rewards, next_states, dones = experiences
 
         # ---------------------------- update critic ---------------------------- #
+        rewards = (rewards-rewards.mean())/(rewards.std()+0.01)
         # Get predicted next-state actions and Q values from target models
         actions_next = self.actor_target(next_states)
         Q_targets_next = self.critic_target(next_states, actions_next)
@@ -141,8 +144,9 @@ class Agent():
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
 
-    def __init__(self, size, seed, mu=0., theta=0.15, sigma=0.2):
+    def __init__(self, size, seed, mu=0., theta=0.075, sigma=0.05):
         """Initialize parameters and noise process."""
+        self.size=size
         self.mu = mu * np.ones(size)
         self.theta = theta
         self.sigma = sigma
@@ -156,7 +160,7 @@ class OUNoise:
     def sample(self):
         """Update internal state and return it as a noise sample."""
         x = self.state
-        dx = self.theta * (self.mu - x) + self.sigma * np.array([random.random() for i in range(len(x))])
+        dx = self.theta * (self.mu - x) + self.sigma * np.random.normal(0,1,self.size)
         self.state = x + dx
         return self.state
 
